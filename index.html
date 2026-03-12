@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>мысли</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b0c0e 0%, #1a1c20 100%);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .thoughts-space {
+            width: 100%;
+            max-width: 600px;
+            min-height: 520px;
+            background: rgba(18, 20, 24, 0.7);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 42px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 215, 245, 0.05);
+            padding: 32px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .header-trace {
+            text-align: center;
+            margin-bottom: 28px;
+            opacity: 0.5;
+            letter-spacing: 2px;
+            font-size: 13px;
+            font-weight: 300;
+            color: #b7a9b3;
+            text-transform: uppercase;
+            word-spacing: 6px;
+        }
+
+        .message-well {
+            flex: 1;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 8px 0 28px 0;
+            padding: 12px 4px;
+        }
+
+        .floating-message {
+            color: #f7e3ef;
+            font-size: clamp(28px, 9vw, 62px);
+            font-weight: 300;
+            line-height: 1.2;
+            text-align: center;
+            word-break: break-word;
+            text-shadow: 0 0 20px rgba(255, 180, 215, 0.5),
+                         0 0 40px rgba(160, 140, 200, 0.3);
+            animation: gentleAppear 2.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            max-width: 100%;
+            padding: 0 6px;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
+        }
+
+        @keyframes gentleAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(18px) scale(0.96);
+                filter: blur(4px);
+            }
+            25% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+            85% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-18px) scale(0.98);
+                filter: blur(3px);
+            }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 8px;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 240, 250, 0.03);
+            border: 1px solid rgba(255, 200, 230, 0.15);
+            border-radius: 60px;
+            padding: 14px 42px;
+            font-size: 18px;
+            font-weight: 330;
+            color: #e5cedf;
+            letter-spacing: 2px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 8px 18px -8px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+            outline: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 230, 245, 0.08);
+            border-color: rgba(255, 180, 220, 0.4);
+            color: #ffecf5;
+            box-shadow: 0 10px 24px -6px #220016;
+            transform: scale(1.02);
+        }
+
+        .toggle-btn:active {
+            transform: scale(0.97);
+            background: rgba(210, 180, 200, 0.1);
+        }
+
+        .footer-grace {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #857787;
+            font-size: 12px;
+            padding: 0 10px;
+            margin-top: 12px;
+            opacity: 0.45;
+            font-weight: 300;
+        }
+
+        .footer-grace span:first-child {
+            letter-spacing: 1px;
+        }
+
+        .footer-grace span:last-child {
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        @media (max-width: 420px) {
+            .thoughts-space {
+                padding: 22px 12px;
+                border-radius: 34px;
+            }
+            .floating-message {
+                font-size: clamp(24px, 12vw, 48px);
+            }
+            .toggle-btn {
+                padding: 12px 32px;
+                font-size: 16px;
+                min-width: 140px;
+            }
+        }
+
+        @media (min-height: 780px) {
+            .thoughts-space {
+                min-height: 620px;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="thoughts-space">
+        <div class="header-trace">
+            ✦  бесконечные мысли  ✦
+        </div>
+
+        <div class="message-well" id="messageWell">
+            <div class="floating-message" id="thoughtMessage">...</div>
+        </div>
+
+        <div class="controls">
+            <button class="toggle-btn" id="toggleBtn">пауза</button>
+        </div>
+
+        <div class="footer-grace">
+            <span>⋯ мысли вслух ⋯</span>
+            <span id="counterDisplay">0</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const phraseLibrary = [
+                "прости",
+                "я люблю тебя",
+                "я всё ещё скучаю",
+                "❣️🚰",
+                "ты лучшее что было в моей жизни",
+                "ищу тебя в толпе",
+                "помнишь?",
+                "мне тепло с тобой",
+                "ты мне снишься",
+                "как ты?",
+                "ты в каждом вдохе",
+                "прости меня",
+                "я помню каждую мелочь",
+                "ты нужна мне",
+                "скучаю..",
+                "навсегда в сердце",
+                "почёму всё так",
+                "я не отпустил",
+                "я рад, что ты счастлива",
+                "хочу прикоснуться к тебе",
+                "мне не хватает тебя",
+                "извини за этот бред"
+            ];
+
+            const messageElement = document.getElementById('thoughtMessage');
+            const counterSpan = document.getElementById('counterDisplay');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const wellElement = document.getElementById('messageWell');
+
+            let currentPhraseIndex = null;
+            let messageCounter = 0;
+            let timeoutHandle = null;
+            let isPaused = false;
+            let pausedPhrase = null;
+            let pausedIndex = null;
+
+            function getRandomPhraseDifferent(previousIndex) {
+                if (phraseLibrary.length === 0) return "...";
+                if (phraseLibrary.length === 1) return { text: phraseLibrary[0], index: 0 };
+
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * phraseLibrary.length);
+                } while (newIndex === previousIndex);
+                return { text: phraseLibrary[newIndex], index: newIndex };
+            }
+
+            function showNextMessage() {
+                if (isPaused) return;
+
+                if (timeoutHandle) {
+                    clearTimeout(timeoutHandle);
+                    timeoutHandle = null;
+                }
+
+                const { text: newText, index: newIndex } = getRandomPhraseDifferent(currentPhraseIndex);
+                currentPhraseIndex = newIndex;
+
+                messageElement.textContent = newText;
+
+                messageCounter++;
+                counterSpan.textContent = messageCounter;
+
+                messageElement.style.animation = 'none';
+                void messageElement.offsetWidth;
+                messageElement.style.animation = 'gentleAppear 2.2s cubic-bezier(0.23, 1, 0.32, 1) forwards';
+
+                timeoutHandle = setTimeout(() => {
+                    showNextMessage();
+                }, 2200);
+            }
+
+            function pauseFlow() {
+                if (isPaused) return;
+                isPaused = true;
+                toggleBtn.textContent = 'продолжить';
+
+                if (timeoutHandle) {
+                    clearTimeout(timeoutHandle);
+                    timeoutHandle = null;
+                }
+
+                pausedPhrase = messageElement.textContent;
+                pausedIndex = currentPhraseIndex;
+
+                messageElement.style.animation = 'none';
+                messageElement.style.opacity = '1';
+                messageElement.style.transform = 'translateY(0) scale(1)';
+                messageElement.style.filter = 'blur(0)';
+            }
+
+            function resumeFlow() {
+                if (!isPaused) return;
+                isPaused = false;
+                toggleBtn.textContent = 'пауза';
+
+                if (pausedPhrase) {
+                    messageElement.textContent = pausedPhrase;
+                    currentPhraseIndex = pausedIndex;
+                }
+
+                messageElement.style.animation = 'none';
+                void messageElement.offsetWidth;
+                messageElement.style.animation = 'gentleAppear 2.2s cubic-bezier(0.23, 1, 0.32, 1) forwards';
+
+                if (timeoutHandle) {
+                    clearTimeout(timeoutHandle);
+                }
+
+                timeoutHandle = setTimeout(() => {
+                    showNextMessage();
+                }, 2200);
+            }
+
+            function toggleFlow() {
+                if (isPaused) {
+                    resumeFlow();
+                } else {
+                    pauseFlow();
+                }
+            }
+
+            wellElement.addEventListener('click', (e) => {
+                if (!e.target.closest('.toggle-btn')) {
+                    toggleFlow();
+                }
+            });
+
+            toggleBtn.addEventListener('click', toggleFlow);
+
+            function startFirstMessage() {
+                setTimeout(() => {
+                    showNextMessage();
+                }, 400);
+            }
+
+            const footer = document.querySelector('.footer-grace');
+            if (footer) {
+                footer.addEventListener('dblclick', function() {
+                    messageCounter = 0;
+                    counterSpan.textContent = '0';
+                });
+            }
+
+            startFirstMessage();
+        })();
+    </script>
+</body>
+</html>
