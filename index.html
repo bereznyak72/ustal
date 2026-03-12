@@ -35,6 +35,7 @@
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .header-trace {
@@ -164,6 +165,83 @@
             font-size: 13px;
         }
 
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(25, 20, 28, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 200, 230, 0.2);
+            border-radius: 36px;
+            padding: 36px 28px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            color: #f3d9e8;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 180, 215, 0.1);
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-message {
+            font-size: 24px;
+            line-height: 1.4;
+            font-weight: 300;
+            margin-bottom: 32px;
+            text-shadow: 0 0 15px rgba(255, 160, 200, 0.4);
+        }
+
+        .modal-close {
+            background: rgba(255, 220, 240, 0.08);
+            border: 1px solid rgba(255, 180, 215, 0.3);
+            border-radius: 40px;
+            padding: 12px 36px;
+            font-size: 18px;
+            color: #eac8db;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 200, 230, 0.15);
+            border-color: rgba(255, 160, 210, 0.6);
+            color: #fff0f8;
+            transform: scale(1.02);
+        }
+
+        .modal-close:active {
+            transform: scale(0.98);
+        }
+
         @media (max-width: 420px) {
             .thoughts-space {
                 padding: 22px 12px;
@@ -176,6 +254,9 @@
                 padding: 12px 32px;
                 font-size: 16px;
                 min-width: 140px;
+            }
+            .modal-message {
+                font-size: 20px;
             }
         }
 
@@ -207,6 +288,13 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-message" id="modalMessage"></div>
+            <button class="modal-close" id="modalClose">...</button>
+        </div>
+    </div>
+
     <script>
         (function() {
             const phraseLibrary = [
@@ -231,13 +319,29 @@
                 "я рад, что ты счастлива",
                 "хочу прикоснуться к тебе",
                 "мне не хватает тебя",
-                "извини за этот бред"
+                "я скучаю по твоим влюблённым глазам",
+                "извини за этот бред",
+                "мне спокойно с тобой",
+                "ты мой сон, который не сбылся",
+                "я люблю тебя. всё ещё",
+                "мне никто не нужен, кроме тебя",
+                "я не могу тебя забыть",
+                "спасибо, что ты была",
+                "я хочу тебя обнять",
+                "мне больно без тебя",
+                "просто будь счастлива",
+                "ты в каждой моей мысли",
+                "почему ты не рядом?"
             ];
 
             const messageElement = document.getElementById('thoughtMessage');
             const counterSpan = document.getElementById('counterDisplay');
             const toggleBtn = document.getElementById('toggleBtn');
             const wellElement = document.getElementById('messageWell');
+            
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalClose = document.getElementById('modalClose');
 
             let currentPhraseIndex = null;
             let messageCounter = 0;
@@ -245,6 +349,10 @@
             let isPaused = false;
             let pausedPhrase = null;
             let pausedIndex = null;
+            
+            let modal50Shown = false;
+            let modal100Shown = false;
+            let modal200Shown = false;
 
             function getRandomPhraseDifferent(previousIndex) {
                 if (phraseLibrary.length === 0) return "...";
@@ -255,6 +363,41 @@
                     newIndex = Math.floor(Math.random() * phraseLibrary.length);
                 } while (newIndex === previousIndex);
                 return { text: phraseLibrary[newIndex], index: newIndex };
+            }
+
+            function showModal(text) {
+                modalMessage.textContent = text;
+                modalOverlay.classList.add('active');
+                
+                if (timeoutHandle && !isPaused) {
+                    clearTimeout(timeoutHandle);
+                    timeoutHandle = null;
+                }
+            }
+
+            function hideModal() {
+                modalOverlay.classList.remove('active');
+                
+                if (!isPaused && !timeoutHandle) {
+                    timeoutHandle = setTimeout(() => {
+                        showNextMessage();
+                    }, 400);
+                }
+            }
+
+            function checkMilestones() {
+                if (messageCounter >= 50 && !modal50Shown) {
+                    modal50Shown = true;
+                    showModal("50 фраз... каждая из них о тебе");
+                }
+                else if (messageCounter >= 100 && !modal100Shown) {
+                    modal100Shown = true;
+                    showModal("ты просмотрел(а) 100 фраз, но жаль, что они не дойдут до важного для меня человека");
+                }
+                else if (messageCounter >= 200 && !modal200Shown) {
+                    modal200Shown = true;
+                    showModal("200 фраз.. а ты всё ещё здесь.. спасибо..");
+                }
             }
 
             function showNextMessage() {
@@ -272,6 +415,8 @@
 
                 messageCounter++;
                 counterSpan.textContent = messageCounter;
+                
+                checkMilestones();
 
                 messageElement.style.animation = 'none';
                 void messageElement.offsetWidth;
@@ -339,6 +484,14 @@
             });
 
             toggleBtn.addEventListener('click', toggleFlow);
+            
+            modalClose.addEventListener('click', hideModal);
+            
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    hideModal();
+                }
+            });
 
             function startFirstMessage() {
                 setTimeout(() => {
@@ -351,6 +504,9 @@
                 footer.addEventListener('dblclick', function() {
                     messageCounter = 0;
                     counterSpan.textContent = '0';
+                    modal50Shown = false;
+                    modal100Shown = false;
+                    modal200Shown = false;
                 });
             }
 
